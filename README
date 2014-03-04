@@ -1,3 +1,4 @@
 
 Dependencies:
  - A fairly recent libnl.  Tested against git commit 65452061
+ - A copy of nl80211.h

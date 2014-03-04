@@ -1,0 +1,3 @@
+PKG_NAME:=o11s-pathseld
+PKG_VERSION:=0.1
+PKG_RELEASE:=1
