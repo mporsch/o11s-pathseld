@@ -196,15 +196,15 @@ int join_mesh(char* ifname, char *mesh_id, int mesh_id_len, char *vendor_ie, int
 
 	if (vendor_ie) {
 		struct nlattr *container = nla_nest_start(msg,
-				NL80211_ATTR_MESH_PARAMS);
+				NL80211_ATTR_MESH_SETUP);
 
 		if (!container)
 			return -ENOBUFS;
 
-		NLA_PUT(msg, NL80211_MESHCONF_VENDOR_PATH_SEL_IE,
+		NLA_PUT(msg, NL80211_MESH_SETUP_IE,
 				vendor_ie_len, vendor_ie);
-		NLA_PUT_U8(msg, NL80211_MESHCONF_ENABLE_VENDOR_PATH_SEL, 1);
-		NLA_PUT_U8(msg, NL80211_MESHCONF_ENABLE_VENDOR_METRIC, 1);
+		NLA_PUT_U8(msg, NL80211_MESH_SETUP_ENABLE_VENDOR_PATH_SEL, 1);
+		NLA_PUT_U8(msg, NL80211_MESH_SETUP_ENABLE_VENDOR_METRIC, 1);
 		nla_nest_end(msg, container);
 	}
 
