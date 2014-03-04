@@ -36,8 +36,8 @@ static void usage(void)
 {
 	int i;
 	printf("%s\n\n"
-	       "usage:\n"
-	       "  o11s_pathseld -s mesh_id [-B] [-i<ifname>]\n\n", o11s_pathseld_version);
+		   "usage:\n"
+		   "  o11s_pathseld -s mesh_id [-B] [-i<ifname>]\n\n", o11s_pathseld_version);
 }
 
 int register_read_socket(int sock)
@@ -48,14 +48,14 @@ int register_read_socket(int sock)
 
 static int event_handler(struct nl_msg *msg, void *arg)
 {
-        struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
-        struct nlattr *tb[NL80211_ATTR_MAX + 1];
+	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
+	struct nlattr *tb[NL80211_ATTR_MAX + 1];
 	int cmd = gnlh->cmd;
 	uint8_t *pos;
 	int i;
 
-        nla_parse(tb, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
-                  genlmsg_attrlen(gnlh, 0), NULL);
+	nla_parse(tb, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
+			  genlmsg_attrlen(gnlh, 0), NULL);
 
 	switch (gnlh->cmd) {
 		case NL80211_CMD_FRAME:
@@ -111,24 +111,24 @@ int wait_on_sockets()
 		FD_SET(s2, &rd_sock_set);
 		retval = select(max_fds, &rd_sock_set, &wr_sock_set, NULL, NULL);
 		//if (FD_ISSET(s1, &rd_sock_set)) {
-        	//	nl_recvmsgs_default(nlcfg.nl_sock_event);
+		//	nl_recvmsgs_default(nlcfg.nl_sock_event);
 		//}
 		if (FD_ISSET(s2, &rd_sock_set))
-        		nl_recvmsgs_default(nlcfg.nl_sock);
+			nl_recvmsgs_default(nlcfg.nl_sock);
 	}
 }
 
 int receive_ps_frames(struct nl_msg *msg, void *arg)
 {
-        struct nlattr *tb[NL80211_ATTR_MAX + 1];
-        struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
-        struct nlattr *action_frame;
+	struct nlattr *tb[NL80211_ATTR_MAX + 1];
+	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
+	struct nlattr *action_frame;
 
 	printf("receive_ps_frames %d\n", __LINE__);
-        nla_parse(tb, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
-                  genlmsg_attrlen(gnlh, 0), NULL);
-        if (!tb[NL80211_ATTR_FRAME])
-                return NL_SKIP;
+	nla_parse(tb, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
+			  genlmsg_attrlen(gnlh, 0), NULL);
+	if (!tb[NL80211_ATTR_FRAME])
+		return NL_SKIP;
 	else
 		printf("frame size is %d in %p\n",
 				nla_len(tb[NL80211_ATTR_FRAME]),
@@ -139,55 +139,55 @@ int receive_ps_frames(struct nl_msg *msg, void *arg)
 
 int reroute_path_selection_frames(char* ifname)
 {
-        struct nl_msg *msg;
-        uint8_t cmd = NL80211_CMD_REGISTER_FRAME;
-        int ret;
+	struct nl_msg *msg;
+	uint8_t cmd = NL80211_CMD_REGISTER_FRAME;
+	int ret;
 	char *pret;
 	char action_code[2] = { 0x20, 0x00 };
 
-        int ifindex = if_nametoindex(ifname);
+	int ifindex = if_nametoindex(ifname);
 
-        msg = nlmsg_alloc();
-        if (!msg)
-                return -ENOMEM;
+	msg = nlmsg_alloc();
+	if (!msg)
+		return -ENOMEM;
 
 	pret = genlmsg_put(msg, 0, 0,
 		genl_family_get_id(nlcfg.nl80211), 0, 0, cmd, 0);
 	if (pret == NULL)
 		goto nla_put_failure;
 
-        NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
+	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
 	NLA_PUT(msg, NL80211_ATTR_FRAME_MATCH, sizeof(action_code), action_code);
 
-        ret = send_and_recv_msgs(msg, receive_ps_frames, NULL);
-        if (ret)
+	ret = send_and_recv_msgs(msg, receive_ps_frames, NULL);
+	if (ret)
 		printf("Registering for path selection frames failed: %d (%s)\n", ret,
 			strerror(-ret));
 	else
-		printf("Registering for path selection frames succeeded.  Yay!\n");
+		printf("Registering for path selection frames succeeded. Yay!\n");
 
-        return ret;
+	return ret;
  nla_put_failure:
-        return -ENOBUFS;
+	return -ENOBUFS;
 }
 
 int join_mesh(char* ifname, char *mesh_id, int mesh_id_len, char *vendor_ie, int vendor_ie_len)
 {
-        struct nl_msg *msg;
-        uint8_t cmd = NL80211_CMD_JOIN_MESH;
-        int ret;
+	struct nl_msg *msg;
+	uint8_t cmd = NL80211_CMD_JOIN_MESH;
+	int ret;
 	char *pret;
 
-        int ifindex = if_nametoindex(ifname);
+	int ifindex = if_nametoindex(ifname);
 
-        msg = nlmsg_alloc();
-        if (!msg)
-                return -ENOMEM;
+	msg = nlmsg_alloc();
+	if (!msg)
+		return -ENOMEM;
 
 	if (!mesh_id || !mesh_id_len)
 		return -EINVAL;
 
-        printf("o11s-pathseld: Staring mesh with mesh id = %s\n", mesh_id);
+	printf("o11s-pathseld: Staring mesh with mesh id = %s\n", mesh_id);
 
 	pret = genlmsg_put(msg, 0, 0,
 		genl_family_get_id(nlcfg.nl80211), 0, 0, cmd, 0);
@@ -208,21 +208,20 @@ int join_mesh(char* ifname, char *mesh_id, int mesh_id_len, char *vendor_ie, int
 		nla_nest_end(msg, container);
 	}
 
-        NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
-        NLA_PUT(msg, NL80211_ATTR_MESH_ID, mesh_id_len, mesh_id);
+	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
+	NLA_PUT(msg, NL80211_ATTR_MESH_ID, mesh_id_len, mesh_id);
 
-        ret = send_and_recv_msgs(msg, NULL, NULL);
-        if (ret)
+	ret = send_and_recv_msgs(msg, NULL, NULL);
+	if (ret)
 		printf("Mesh start failed: %d (%s)\n", ret,
 			strerror(-ret));
 	else
-		printf("Mesh start succeeded.  Yay!\n");
+		printf("Mesh start succeeded. Yay!\n");
 
-        return ret;
+	return ret;
  nla_put_failure:
-        return -ENOBUFS;
+	return -ENOBUFS;
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -269,7 +268,7 @@ int main(int argc, char *argv[])
 	/* Vendor specific */
 	bogus_ie[0] = 221;
 	/* nl80211 will check that this is an information element
-	   by inspecting its length field.  So this bogus ie should
+	   by inspecting its length field. So this bogus ie should
 	   at least have a correct length, which we set below.
 	   */
 	bogus_ie[1] = sizeof(bogus_ie) - 2;
@@ -282,7 +281,7 @@ int main(int argc, char *argv[])
 		return exitcode;
 	wait_on_sockets();
 
-	/* TODO:  Remove beacon on exit.  In order to remove the beacon, we
+	/* TODO: Remove beacon on exit. In order to remove the beacon, we
 	   need to get the beacon from o11s, delete it, and then add it again
 	   without a tail.
 	   This requires the command NL80211_CMD_GET_BEACON to be implemented.
